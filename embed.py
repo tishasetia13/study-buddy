@@ -56,22 +56,7 @@ def main():
         json.dump(chunks, f, indent=2)
     print(f"Saved matching metadata to {METADATA_OUT}")
 
-    # --- Self-test: prove semantic search actually works on YOUR data ---
-    print("\n--- Quick sanity check ---")
-    test_query = input("Type a question about your notes to test retrieval (or press Enter to skip): ").strip()
-    if test_query:
-        query_vec = model.encode(test_query, convert_to_numpy=True)
-
-        # Cosine similarity between the query and every chunk
-        norms = np.linalg.norm(embeddings, axis=1) * np.linalg.norm(query_vec)
-        sims = (embeddings @ query_vec) / norms
-
-        top_idx = np.argsort(sims)[::-1][:3]  # top 3 matches
-        print(f"\nTop 3 chunks for: \"{test_query}\"\n")
-        for rank, i in enumerate(top_idx, 1):
-            c = chunks[i]
-            print(f"{rank}. (score={sims[i]:.3f}) [{c.get('source')} p.{c.get('page')}]")
-            print(f"   {c['text'][:150]}...\n")
+    
 
 
 if __name__ == "__main__":
