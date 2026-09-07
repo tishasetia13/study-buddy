@@ -3,3 +3,4 @@ __pycache__/
 chunks.json
 embeddings.npy
 metadata.json
+.env
