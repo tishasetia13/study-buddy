@@ -1,0 +1,114 @@
+body {
+    font-family: system-ui, sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+  }
+
+  .chat-container {
+    max-width: 700px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .upload-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  #pdf-input {
+    flex: 1;
+  }
+
+  #upload-btn {
+    padding: 10px 18px;
+    background: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  #upload-btn:disabled {
+    background: #aaa;
+  }
+
+  #upload-status {
+    min-height: 1.2em;
+    margin-bottom: 16px;
+    font-size: 0.9em;
+  }
+
+  .status-pending {
+    color: #955c00;
+  }
+
+  .status-ready {
+    color: #2e7d32;
+  }
+
+  .status-error {
+    color: #c62828;
+  }
+
+  #chat-log {
+    min-height: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    padding: 10px;
+  }
+
+  .message {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border-radius: 8px;
+  }
+
+  .user-msg {
+    background: #e3f2fd;
+    text-align: right;
+  }
+
+  .answer-msg {
+    background: #f1f8e9;
+  }
+
+  .citations {
+    margin-top: 8px;
+    font-size: 0.85em;
+    color: #555;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  #question-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+
+  #question-input:disabled {
+    background: #f0f0f0;
+  }
+
+  #send-btn {
+    padding: 10px 18px;
+    background: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  #send-btn:disabled {
+    background: #aaa;
+  }

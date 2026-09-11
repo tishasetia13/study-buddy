@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Study Buddy</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="chat-container">
+    <h1>📚 Study Buddy</h1>
+
+    <div class="upload-row">
+      <input type="file" id="pdf-input" accept="application/pdf" />
+      <button id="upload-btn">Upload PDF</button>
+    </div>
+    <div id="upload-status"></div>
+
+    <div id="chat-log"></div>
+
+    <div class="input-row">
+      <input type="text" id="question-input" placeholder="Upload a PDF to start asking questions..." disabled />
+      <button id="send-btn" disabled>Send</button>
+    </div>
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>

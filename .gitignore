@@ -4,3 +4,5 @@ chunks.json
 embeddings.npy
 metadata.json
 .env
+sessions/
+

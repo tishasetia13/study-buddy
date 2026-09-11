@@ -1,16 +1,22 @@
 """
 embed.py
 
-Turns chunks.json (from run_pipeline.py) into vector embeddings.
-Output:
-  - embeddings.npy   : a NumPy array of shape (num_chunks, 384), one row per chunk
-  - metadata.json    : the same chunk metadata, in the SAME ORDER as embeddings.npy,
-                        so embeddings.npy[i] corresponds to metadata.json[i]
+Turns chunk dicts into vector embeddings.
 
-Why split into two files instead of one? .npy is a compact binary format built for
-numeric arrays (fast to load), while .json is better for the human-readable metadata.
-Keeping them as parallel arrays (matched by index) is a simple, common pattern for
-small-to-medium projects before you'd reach for a real vector database.
+This file is used two ways:
+1. As a script (`python embed.py`) - the original offline workflow. Loads
+   chunks.json (written by run_pipeline.py) and writes embeddings.npy +
+   metadata.json, for manually pre-processing one fixed PDF.
+2. As a module (`import embed`) - main.py's /upload endpoint calls
+   embed_chunks() and save_embeddings() directly so each uploaded PDF can be
+   embedded and saved into its own session folder, instead of always
+   overwriting the one shared pair of files above.
+
+Why .npy + .json as separate files? .npy is a compact binary format built for
+numeric arrays (fast to load), while .json is better for human-readable
+metadata. Keeping them as parallel arrays (matched by index) is a simple,
+common pattern for small-to-medium projects before you'd reach for a real
+vector database.
 """
 
 import json
@@ -22,20 +28,46 @@ EMBEDDINGS_OUT = "embeddings.npy"
 METADATA_OUT = "metadata.json"
 MODEL_NAME = "all-MiniLM-L6-v2"
 
+# Loading the embedding model takes a few seconds, so we only want to do it
+# once per process (not once per upload). Cache it at module level, same
+# pattern retriever.py uses for the same reason.
+_model = None
+
+
+def _load_model():
+    global _model
+    if _model is None:
+        _model = SentenceTransformer(MODEL_NAME)
+    return _model
+
 
 def load_chunks(path):
     with open(path, "r") as f:
         return json.load(f)
 
 
-def embed_chunks(chunks, model):
-    # Pull out just the text to feed the model
+def embed_chunks(chunks):
+    """
+    Turn a list of chunk dicts (each with a "text" field) into a NumPy array
+    of embeddings, one row per chunk, in the same order as `chunks`.
+    """
+    model = _load_model()
     texts = [chunk["text"] for chunk in chunks]
 
     # model.encode() batches this efficiently rather than one-at-a-time.
-    # show_progress_bar gives you a live progress indicator for larger note sets.
     embeddings = model.encode(texts, show_progress_bar=True, convert_to_numpy=True)
     return embeddings
+
+
+def save_embeddings(chunks, embeddings, embeddings_path, metadata_path):
+    """
+    Save embeddings + their matching chunk metadata to the given paths.
+    Kept as two calls to the same file pair so a caller (like /upload) can
+    point them at a per-session folder instead of the fixed files above.
+    """
+    np.save(embeddings_path, embeddings)
+    with open(metadata_path, "w") as f:
+        json.dump(chunks, f, indent=2)
 
 
 def main():
@@ -44,19 +76,11 @@ def main():
     print(f"Loaded {len(chunks)} chunks.")
 
     print(f"Loading embedding model '{MODEL_NAME}' (downloads once, then cached)...")
-    model = SentenceTransformer(MODEL_NAME)
-
-    print("Embedding chunks...")
-    embeddings = embed_chunks(chunks, model)
+    embeddings = embed_chunks(chunks)
 
     print(f"Saving {embeddings.shape[0]} vectors of dimension {embeddings.shape[1]} to {EMBEDDINGS_OUT}")
-    np.save(EMBEDDINGS_OUT, embeddings)
-
-    with open(METADATA_OUT, "w") as f:
-        json.dump(chunks, f, indent=2)
+    save_embeddings(chunks, embeddings, EMBEDDINGS_OUT, METADATA_OUT)
     print(f"Saved matching metadata to {METADATA_OUT}")
-
-    
 
 
 if __name__ == "__main__":
